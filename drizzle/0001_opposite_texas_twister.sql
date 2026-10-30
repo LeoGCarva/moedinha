@@ -1,1 +1,0 @@
-ALTER TABLE "expense" ADD COLUMN "kind" text DEFAULT 'saida' NOT NULL;
