@@ -7,6 +7,7 @@ export const profile = pgTable("profile", {
   userId: text("user_id").primaryKey(),
   monthlyIncome: integer("monthly_income").notNull(), // centavos
   payday: integer("payday").notNull(), // dia do mês, 1–31
+  weeklyHours: integer("weekly_hours"), // carga horária semanal (1–168); nulo até o usuário informar
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

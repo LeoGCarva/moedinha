@@ -4,11 +4,12 @@ import { SignOutButton } from "@/components/SignOutButton";
 
 const NAV = [
   { href: "/", label: "Início" },
+  { href: "/quanto-custa", label: "Quanto custa" },
   { href: "/perfil", label: "Perfil" },
 ] as const;
 
 /** Cabeçalho das páginas autenticadas. */
-export function AppHeader({ current }: { current: "/" | "/perfil" }) {
+export function AppHeader({ current }: { current: (typeof NAV)[number]["href"] }) {
   return (
     <header className="border-b border-linha bg-superficie">
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-8">

@@ -113,3 +113,25 @@ export function monthLabel(year: number, month: number) {
 export function todayISO(now = new Date()) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(now);
 }
+
+/** Semanas num mês médio (52 semanas ÷ 12 meses). */
+const WEEKS_PER_MONTH = 52 / 12;
+
+/** Horas de trabalho para pagar `priceCents`, dada a renda mensal e a carga horária semanal. */
+export function workHoursFor(priceCents: number, incomeCents: number, weeklyHours: number) {
+  return (priceCents * weeklyHours * WEEKS_PER_MONTH) / incomeCents;
+}
+
+/** Valor de uma hora de trabalho, em centavos. */
+export function hourlyRate(incomeCents: number, weeklyHours: number) {
+  return incomeCents / (weeklyHours * WEEKS_PER_MONTH);
+}
+
+/** 49,52 → "49 h 31 min"; 0,5 → "30 min"; abaixo de meio minuto → "menos de 1 min". */
+export function formatHours(hours: number) {
+  const total = Math.round(hours * 60);
+  if (total === 0) return "menos de 1 min";
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return [h && `${h.toLocaleString("pt-BR")} h`, m && `${m} min`].filter(Boolean).join(" ");
+}
