@@ -83,9 +83,8 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/">, "searchParams">)
     <>
       <div className="flex flex-wrap items-end gap-4">
         <h1 className="mr-auto font-display text-h1 font-bold">Olá, {user.name}</h1>
-        <AddExpenseForm today={today} kind="saida" />
-        <AddExpenseForm today={today} kind="investimento" />
-        <AddExpenseForm today={today} kind="entrada" />
+        <AddExpenseForm today={today} type="saida" />
+        <AddExpenseForm today={today} type="entrada" />
       </div>
 
       <section aria-label="Resumo" className="flex flex-wrap gap-6">

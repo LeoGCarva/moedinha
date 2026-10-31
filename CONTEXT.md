@@ -2,7 +2,7 @@
 
 > Fonte única de contexto do projeto. **Atualizar este arquivo a cada mudança** (stack, decisões, schema, rotas, status, próximos passos).
 
-_Última atualização: 2026-10-30 — Investimento (negativo) + "Adicionar entrada" (positivo)._
+_Última atualização: 2026-10-31 — Botão único "Adicionar saída" (select Gasto/Investimento)._
 
 ## Objetivo
 Site onde o usuário autenticado registra quanto gastou e vê o **total de gastos do mês**.
@@ -36,8 +36,8 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 - Driver `pg` (recomendação da skill Neon para Next.js na Vercel). Ao fazer deploy na Vercel: adicionar `attachDatabasePool` de `@vercel/functions` em `src/db/index.ts`.
 - Cache Components: leituras de sessão chamam `await connection()` e ficam dentro de `<Suspense>`; após mutações usar `refresh()` de `next/cache`.
 - `<body>` em `src/app/layout.tsx` tem `suppressHydrationWarning` porque extensões de navegador (ex.: Grammarly) injetam atributos nele. Vale só para os atributos do próprio `<body>`, não para os filhos.
-- **Movimentações**: a tabela `expense` guarda três tipos em `kind`: `saida` (**Gasto**, etiqueta vermelha, `− R$` em `text-saida`), `investimento` (**Investimento**, botão "Guardar dinheiro": dinheiro que sai da conta para ser guardado; etiqueta rosa `rosa-claro`/`rosa-texto`, `− R$` em `text-rosa-texto`; no calendário com um ponto rosa) e `entrada` (**Entrada**, botão "Adicionar entrada": dinheiro que entra na conta; etiqueta `entrada-claro`/`entrada`, `+ R$` em `text-entrada`). O nome `expense` foi mantido para não mexer em tudo. "Total do dia" no modal = entradas − gastos − investimentos. Helpers: `formatSigned`, `kindSign` (`money.ts`), `KindBadge` e `kindColor` (`KindBadge.tsx`, uma tabela por tipo).
-- **Formulários de nova movimentação**: "Adicionar gasto", "Guardar dinheiro" (investimento) e "Adicionar entrada" (primário) abrem o formulário num modal (`<dialog>` com `showModal()` em `AddExpenseForm`, prop `kind`). O formulário remonta a cada fechamento (`key`), então reabre limpo; salvar com sucesso fecha o modal.
+- **Movimentações**: a tabela `expense` guarda três tipos em `kind`: `saida` (**Gasto**, etiqueta vermelha, `− R$` em `text-saida`), `investimento` (**Investimento**, escolhido no select de "Adicionar saída": dinheiro que sai da conta para ser guardado; etiqueta rosa `rosa-claro`/`rosa-texto`, `− R$` em `text-rosa-texto`; no calendário com um ponto rosa) e `entrada` (**Entrada**, botão "Adicionar entrada": dinheiro que entra na conta; etiqueta `entrada-claro`/`entrada`, `+ R$` em `text-entrada`). O nome `expense` foi mantido para não mexer em tudo. "Total do dia" no modal = entradas − gastos − investimentos. Helpers: `formatSigned`, `kindSign` (`money.ts`), `KindBadge` e `kindColor` (`KindBadge.tsx`, uma tabela por tipo).
+- **Formulários de nova movimentação**: dois botões, "Adicionar saída" (secundário) e "Adicionar entrada" (primário), abrem o formulário num modal (`<dialog>` com `showModal()` em `AddExpenseForm`, prop `type` = `saida`|`entrada`). Na saída, o primeiro campo é o select "Tipo" (Gasto, padrão, ou Investimento), que envia o `kind`; na entrada o `kind` vai num campo oculto. O formulário remonta a cada fechamento (`key`), então reabre limpo; salvar com sucesso fecha o modal.
 - **Resumo**: card verde `CycleSummary` com "Investido no ciclo" (`− R$`), o período em etiqueta e uma barra que divide o disponível (renda + entradas do ciclo) em Investido (`rosa`), Gasto (`cofre-noite` #08342A) e Livre (`white/25`), com legenda e valores. Livre = max(renda + entradas − investido − gasto, 0); se investido + gasto passar do disponível, a barra se ajusta à soma. No fim do card, o texto "Extratos de ciclos anteriores" (`CycleHistory`) abre um modal com cada ciclo anterior (do mais recente até o da movimentação mais antiga, `previousCycles()`): período, entradas (verde), investido (rosa) e gasto (vermelho). Coluna da direita: Renda mensal (+ "R$ X em entradas no ciclo" quando houver), Gasto no ciclo (com % de renda + entradas) e Recebimento.
 - Tabela `expense` sem coluna `category` por enquanto (não foi pedido).
 
@@ -69,7 +69,7 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 ## Rotas
 | Rota | Descrição | Protegida |
 |---|---|---|
-| `/` | Botões "Adicionar gasto" e "Guardar dinheiro" (secundários) e "Adicionar entrada" (primário); resumo (`CycleSummary`: investido no ciclo, período, barra Investido/Gasto/Livre sobre renda + entradas, modal "Extratos de ciclos anteriores"; cards Renda (+ entradas do ciclo), Gasto no ciclo com %, Recebimento); calendário do mês com os totais de gasto, investimento e entrada de cada dia (dias do ciclo em branco, os de fora em cinza; clique abre modal com as movimentações e o botão de excluir), navegação ‹ › via `?mes=YYYY-MM`; "Últimas movimentações" (10 mais recentes de qualquer mês, etiqueta Gasto/Investimento/Entrada) | Sim |
+| `/` | Botões "Adicionar saída" (secundário, select Gasto/Investimento no modal) e "Adicionar entrada" (primário); resumo (`CycleSummary`: investido no ciclo, período, barra Investido/Gasto/Livre sobre renda + entradas, modal "Extratos de ciclos anteriores"; cards Renda (+ entradas do ciclo), Gasto no ciclo com %, Recebimento); calendário do mês com os totais de gasto, investimento e entrada de cada dia (dias do ciclo em branco, os de fora em cinza; clique abre modal com as movimentações e o botão de excluir), navegação ‹ › via `?mes=YYYY-MM`; "Últimas movimentações" (10 mais recentes de qualquer mês, etiqueta Gasto/Investimento/Entrada) | Sim |
 | `/login` | Email/senha + Google + GitHub | Não |
 | `/cadastro` | Nome, email, senha, renda mensal, dia do recebimento (+ botões sociais) | Não |
 | `/perfil` | Dados pessoais (nome editável via `auth.updateUser`, e-mail somente leitura); criar/editar renda e dia; sair | Sim |
@@ -81,7 +81,7 @@ src/
   app/ page.tsx, actions.ts (createExpense, deleteExpense)
        login/ (page, actions)  cadastro/ (page, actions)  perfil/ (page, actions)
        api/auth/[...path]/route.ts
-  components/ AddExpenseForm (prop `kind`), AppHeader, DayExpenses, CycleSummary, ExpenseCalendar, KindBadge, Logo, RecentMovements, ProfileForm, SignOutButton, SocialButtons
+  components/ AddExpenseForm (prop `type`), AppHeader, DayExpenses, CycleSummary, ExpenseCalendar, KindBadge, Logo, RecentMovements, ProfileForm, SignOutButton, SocialButtons
   db/ index.ts (Pool + drizzle), schema.ts
   lib/ auth/{server,client,session}.ts, money.ts, validation.ts (zod)
   proxy.ts (protege / e /perfil)
@@ -127,3 +127,4 @@ Saldo (renda − gastos), categorias, edição de gastos, deploy na Vercel.
 - 2026-10-30 — "Extratos de ciclos anteriores" no card do resumo: modal com guardado e gasto de cada ciclo anterior (`CycleHistory`, `previousCycles`).
 - 2026-10-30 — Perfil: card "Dados pessoais" (`PersonalDataForm`, action `saveName`) com nome editável e e-mail desabilitado. Após salvar, o cookie de cache da sessão do Neon Auth (`__Secure-neon-auth.local.session_data`) é apagado para o nome novo aparecer na hora.
 - 2026-10-30 — "Guardar dinheiro" vira **Investimento** (`kind = investimento`, valor negativo, rosa) e novo botão **"Adicionar entrada"** (`kind = entrada`, `+ R$`, verde) que soma ao disponível do ciclo. Migration de dados 0002 converte as `entrada` antigas em `investimento`. `KindBadge` sem a prop `tone`; extrato com colunas Entradas/Investido/Gasto.
+- 2026-10-31 — "Adicionar gasto" e "Guardar dinheiro" viram um único botão **"Adicionar saída"**; o modal tem um select "Tipo" (Gasto/Investimento). `AddExpenseForm` recebe `type` (`saida`|`entrada`) em vez de `kind`.
