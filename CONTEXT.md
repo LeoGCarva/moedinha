@@ -2,7 +2,7 @@
 
 > Fonte única de contexto do projeto. **Atualizar este arquivo a cada mudança** (stack, decisões, schema, rotas, status, próximos passos).
 
-_Última atualização: 2026-10-31 — Sem ponto no Investimento do calendário._
+_Última atualização: 2026-10-31 — Aba "Quanto custa" (preço em horas de trabalho)._
 
 ## Objetivo
 Site onde o usuário autenticado registra quanto gastou e vê o **total de gastos do mês**.
@@ -39,6 +39,7 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 - **Movimentações**: a tabela `expense` guarda três tipos em `kind`: `saida` (**Gasto**, etiqueta vermelha, `− R$` em `text-saida`), `investimento` (**Investimento**, escolhido no select de "Adicionar saída": dinheiro que sai da conta para ser guardado; etiqueta amarela `investimento-claro`/`investimento`, `− R$` em `text-investimento`) e `entrada` (**Entrada**, botão "Adicionar entrada": dinheiro que entra na conta; etiqueta `entrada-claro`/`entrada`, `+ R$` em `text-entrada`). O nome `expense` foi mantido para não mexer em tudo. "Total do dia" no modal = entradas − gastos − investimentos. Helpers: `formatSigned`, `kindSign` (`money.ts`), `KindBadge` e `kindColor` (`KindBadge.tsx`, uma tabela por tipo).
 - **Formulários de nova movimentação**: dois botões, "Adicionar saída" (secundário) e "Adicionar entrada" (primário), abrem o formulário num modal (`<dialog>` com `showModal()` em `AddExpenseForm`, prop `type` = `saida`|`entrada`). Na saída, o primeiro campo é o select "Tipo" (Gasto, padrão, ou Investimento), que envia o `kind`; na entrada o `kind` vai num campo oculto. O formulário remonta a cada fechamento (`key`), então reabre limpo; salvar com sucesso fecha o modal.
 - **Resumo**: card verde `CycleSummary` com "Investido no ciclo" (`− R$`), o período em etiqueta e uma barra que divide o disponível (renda + entradas do ciclo) em Investido (`investimento-vivo`, amarelo), Gasto (`saida`, o mesmo vermelho do Gasto no resto da UI) e Livre (`white/25`), com legenda e valores. Livre = max(renda + entradas − investido − gasto, 0); se investido + gasto passar do disponível, a barra se ajusta à soma. No fim do card, o texto "Extratos de ciclos anteriores" (`CycleHistory`) abre um modal com cada ciclo anterior (do mais recente até o da movimentação mais antiga, `previousCycles()`): período, entradas (verde), investido (amarelo) e gasto (vermelho). Coluna da direita: Renda mensal (+ "R$ X em entradas no ciclo" quando houver), Gasto no ciclo (com % de renda + entradas) e Recebimento.
+- **Quanto custa** (`/quanto-custa`, `WorkHoursCalculator`): preço → horas de trabalho, calculado ao vivo no navegador. Valor da hora = renda mensal ÷ (horas por semana × 52/12); horas = preço ÷ valor da hora (`workHoursFor`, `hourlyRate`, `formatHours` em `money.ts`). A carga horária semanal fica em `profile.weekly_hours` e é salva pelo botão "Salvar carga horária" (action `saveWeeklyHours`), que só aparece quando o campo difere do salvo.
 - Tabela `expense` sem coluna `category` por enquanto (não foi pedido).
 
 ## Design (v1)
@@ -61,8 +62,8 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 - Domínios: localhost pré-aprovado. Produção: `neon neon-auth domain add https://<domínio>`.
 - Emails de auth usam SMTP compartilhado do Neon; produção precisa de SMTP próprio.
 
-## Schema (`src/db/schema.ts`; migrations `drizzle/0000_*.sql`, `drizzle/0001_*.sql` (coluna `kind`) e `drizzle/0002_investimento.sql` (converte `entrada` antigas → `investimento`) aplicadas)
-- `profile`: `user_id` text PK, `monthly_income` int (centavos), `payday` int (1–31), `created_at`, `updated_at`.
+## Schema (`src/db/schema.ts`; migrations `drizzle/0000_*.sql`, `drizzle/0001_*.sql` (coluna `kind`) e `drizzle/0002_investimento.sql` (converte `entrada` antigas → `investimento`) aplicadas; `drizzle/0003_*.sql` (coluna `weekly_hours`) **pendente de `pnpm db:migrate`**)
+- `profile`: `user_id` text PK, `monthly_income` int (centavos), `payday` int (1–31), `weekly_hours` int nulo (1–168), `created_at`, `updated_at`.
 - `expense`: `id` uuid PK, `user_id` text, `description` text, `amount` int (centavos, sempre positivo; o sinal vem do `kind`), `kind` text `saida`|`investimento`|`entrada` (default `saida`), `spent_at` date, `created_at`. Índice `(user_id, spent_at)`.
 - `neon_auth.*`: gerenciado pelo Neon Auth.
 
@@ -70,6 +71,7 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 | Rota | Descrição | Protegida |
 |---|---|---|
 | `/` | Botões "Adicionar saída" (secundário, select Gasto/Investimento no modal) e "Adicionar entrada" (primário); resumo (`CycleSummary`: investido no ciclo, período, barra Investido/Gasto/Livre sobre renda + entradas, modal "Extratos de ciclos anteriores"; cards Renda (+ entradas do ciclo), Gasto no ciclo com %, Recebimento); calendário do mês com os totais de gasto, investimento e entrada de cada dia (dias do ciclo em branco, os de fora em cinza; clique abre modal com as movimentações e o botão de excluir), navegação ‹ › via `?mes=YYYY-MM`; "Últimas movimentações" (10 mais recentes de qualquer mês, etiqueta Gasto/Investimento/Entrada) | Sim |
+| `/quanto-custa` | Preço de algo + horas de trabalho por semana → quantas horas de trabalho custa (usa a renda do perfil; carga horária salva no perfil) | Sim |
 | `/login` | Email/senha + Google + GitHub | Não |
 | `/cadastro` | Nome, email, senha, renda mensal, dia do recebimento (+ botões sociais) | Não |
 | `/perfil` | Dados pessoais (nome editável via `auth.updateUser`, e-mail somente leitura); criar/editar renda e dia; sair | Sim |
@@ -79,12 +81,13 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 ```
 src/
   app/ page.tsx, actions.ts (createExpense, deleteExpense)
+       quanto-custa/ (page, actions)
        login/ (page, actions)  cadastro/ (page, actions)  perfil/ (page, actions)
        api/auth/[...path]/route.ts
-  components/ AddExpenseForm (prop `type`), AppHeader, DayExpenses, CycleSummary, ExpenseCalendar, KindBadge, Logo, RecentMovements, ProfileForm, SignOutButton, SocialButtons
+  components/ AddExpenseForm (prop `type`), AppHeader, DayExpenses, CycleSummary, ExpenseCalendar, KindBadge, Logo, RecentMovements, ProfileForm, WorkHoursCalculator, SignOutButton, SocialButtons
   db/ index.ts (Pool + drizzle), schema.ts
   lib/ auth/{server,client,session}.ts, money.ts, validation.ts (zod)
-  proxy.ts (protege / e /perfil)
+  proxy.ts (protege /, /quanto-custa e /perfil)
 drizzle/ (migrations)   drizzle.config.ts   neon.ts   .env.example
 ```
 
@@ -132,3 +135,4 @@ Saldo (renda − gastos), categorias, edição de gastos, deploy na Vercel.
 - 2026-10-31 — Barra do resumo: segmento Gasto passa de `cofre-noite` para o vermelho `saida`; token `cofre-noite` removido.
 - 2026-10-31 — Célula do calendário: removido o ponto ao lado do total de Investimento (a cor amarela já o diferencia do gasto).
 - 2026-10-31 — Migrations 0001 e 0002 aplicadas no banco (`pnpm db:migrate`).
+- 2026-10-31 — Aba **"Quanto custa"** (`/quanto-custa`): mostra quantas horas de trabalho custa um preço, com a renda do perfil e a carga horária semanal (nova coluna `profile.weekly_hours`, migration 0003).

@@ -17,6 +17,14 @@ export const profileSchema = z.object({
   payday: z.coerce.number().int().min(1, "Dia entre 1 e 31").max(31, "Dia entre 1 e 31"),
 });
 
+export const weeklyHoursSchema = z.object({
+  weeklyHours: z.coerce
+    .number("Informe as horas")
+    .int("Use horas inteiras")
+    .min(1, "Entre 1 e 168 horas")
+    .max(168, "Entre 1 e 168 horas"),
+});
+
 export const nameSchema = z.object({
   name: z.string().trim().min(1, "Informe o nome").max(100, "Nome muito longo"),
 });
