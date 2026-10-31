@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useFormStatus } from "react-dom";
 import { deleteExpense } from "@/app/actions";
 import { KindBadge, kindColor } from "@/components/KindBadge";
 import { formatBRL, formatSigned, kindSign, type Kind } from "@/lib/money";
@@ -93,15 +94,7 @@ export function DayExpenses({
                   {formatSigned(e.amount, e.kind)}
                 </span>
                 <form action={deleteExpense.bind(null, e.id)}>
-                  <button
-                    aria-label={`Excluir ${e.description}`}
-                    title={`Excluir ${e.description}`}
-                    className="flex size-8 items-center justify-center rounded-md text-tinta-3 hover:bg-saida-claro hover:text-saida"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-                      <path d="M6 6l12 12M18 6L6 18" />
-                    </svg>
-                  </button>
+                  <DeleteButton description={e.description} />
                 </form>
               </li>
             ))}
@@ -123,5 +116,23 @@ export function DayExpenses({
         </div>
       </dialog>
     </>
+  );
+}
+
+/** Botão × de excluir; enquanto a exclusão roda, mostra o spinner vermelho no lugar do ícone. */
+function DeleteButton({ description }: { description: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      disabled={pending}
+      aria-busy={pending}
+      aria-label={`Excluir ${description}`}
+      title={`Excluir ${description}`}
+      className="flex size-8 items-center justify-center rounded-md text-tinta-3 [--spinner:var(--color-saida)] hover:bg-saida-claro hover:text-saida"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
   );
 }

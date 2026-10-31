@@ -31,8 +31,8 @@ export function PersonalDataForm({ name, email }: { name: string; email: string 
       {state?.error && <p role="alert" className="form-error">{state.error}</p>}
       {state?.ok && <p role="status" className="font-semibold text-entrada">Nome salvo.</p>}
       <div className="flex justify-end">
-        <button disabled={pending} className="btn btn-primary">
-          {pending ? "Salvando..." : "Salvar"}
+        <button disabled={pending} aria-busy={pending} className="btn btn-primary">
+          Salvar
         </button>
       </div>
     </form>

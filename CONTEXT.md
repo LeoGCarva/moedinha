@@ -2,7 +2,7 @@
 
 > Fonte única de contexto do projeto. **Atualizar este arquivo a cada mudança** (stack, decisões, schema, rotas, status, próximos passos).
 
-_Última atualização: 2026-10-31 — Aba "Quanto custa" (preço em horas de trabalho)._
+_Última atualização: 2026-10-31 — Skeletons nas telas e spinner nos botões._
 
 ## Objetivo
 Site onde o usuário autenticado registra quanto gastou e vê o **total de gastos do mês**.
@@ -50,6 +50,8 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 - Classes de componente (`@layer components`): `.btn` + `.btn-primary|secondary|ghost|danger` (48 px), `.field`, `.label`, `.input`, `.input-group` (prefixo R$), `.help`, `.form-error`, `.card`, `.overline`, `.divider`.
 - Componentes novos: `Logo` (cofrinho + moeda) e `AppHeader` (nav Início/Perfil + Sair) nas páginas autenticadas.
 - Só tema claro (o modo escuro automático foi removido).
+- **Loading de botões**: botão com ação em andamento recebe `aria-busy={pending}` + `disabled`; o CSS (`[aria-busy="true"]` em `globals.css`) deixa o botão opaco na própria cor, esconde texto/ícone (largura mantida) e gira um spinner na cor `--spinner` (definida por variante: `btn-primary` branco, `secondary` tinta, `danger` saida, `ghost` cofre; padrão `currentColor`). `.btn:disabled` cinza não vale para botões em espera. Usado em Entrar, Criar conta, todos os Salvar, Sair, login social e no × de excluir (`DeleteButton` com `useFormStatus`). Os textos não mudam mais para "Salvando...".
+- **Loading de telas**: os `<Suspense fallback>` de `/`, `/perfil` e `/quanto-custa` usam `DashboardSkeleton`, `ProfileSkeleton` e `CalculatorSkeleton` (`src/components/Skeleton.tsx`, blocos `animate-pulse` em `neutro`, ou `cofre/15` no lugar do card verde) com `role="status"` e "Carregando..." para leitor de tela. O cabeçalho continua fora do Suspense e aparece na hora.
 
 ## Variáveis de ambiente
 `.env.local` (não versionado; modelo em `.env.example`):
@@ -84,7 +86,7 @@ src/
        quanto-custa/ (page, actions)
        login/ (page, actions)  cadastro/ (page, actions)  perfil/ (page, actions)
        api/auth/[...path]/route.ts
-  components/ AddExpenseForm (prop `type`), AppHeader, DayExpenses, CycleSummary, ExpenseCalendar, KindBadge, Logo, RecentMovements, ProfileForm, WorkHoursCalculator, SignOutButton, SocialButtons
+  components/ AddExpenseForm (prop `type`), AppHeader, DayExpenses, CycleSummary, ExpenseCalendar, KindBadge, Logo, RecentMovements, ProfileForm, Skeleton, WorkHoursCalculator, SignOutButton, SocialButtons
   db/ index.ts (Pool + drizzle), schema.ts
   lib/ auth/{server,client,session}.ts, money.ts, validation.ts (zod)
   proxy.ts (protege /, /quanto-custa e /perfil)
@@ -136,3 +138,4 @@ Saldo (renda − gastos), categorias, edição de gastos, deploy na Vercel.
 - 2026-10-31 — Célula do calendário: removido o ponto ao lado do total de Investimento (a cor amarela já o diferencia do gasto).
 - 2026-10-31 — Migrations 0001 e 0002 aplicadas no banco (`pnpm db:migrate`).
 - 2026-10-31 — Aba **"Quanto custa"** (`/quanto-custa`): mostra quantas horas de trabalho custa um preço, com a renda do perfil e a carga horária semanal (nova coluna `profile.weekly_hours`, migration 0003).
+- 2026-10-31 — Loading: skeletons no lugar do "Carregando..." das telas e spinner opaco na cor do botão (`aria-busy`) em todas as ações (salvar, entrar, criar conta, sair, login social, excluir).

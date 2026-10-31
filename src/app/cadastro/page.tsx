@@ -74,8 +74,8 @@ export default function CadastroPage() {
           </fieldset>
 
           {state?.error && <p role="alert" className="form-error">{state.error}</p>}
-          <button disabled={pending} className="btn btn-primary">
-            {pending ? "Criando..." : "Criar conta"}
+          <button disabled={pending} aria-busy={pending} className="btn btn-primary">
+            Criar conta
           </button>
         </form>
 

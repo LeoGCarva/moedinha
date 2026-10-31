@@ -55,8 +55,8 @@ export function WorkHoursCalculator({ income, savedHours }: { income: number; sa
             {state?.error && <p role="alert" className="form-error mr-auto">{state.error}</p>}
             {state?.ok && !changed && <p role="status" className="mr-auto font-semibold text-entrada">Carga horária salva.</p>}
             {changed && (
-              <button disabled={pending} className="btn btn-secondary">
-                {pending ? "Salvando..." : "Salvar carga horária"}
+              <button disabled={pending} aria-busy={pending} className="btn btn-secondary">
+                Salvar carga horária
               </button>
             )}
           </div>

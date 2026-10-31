@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { WorkHoursCalculator } from "@/components/WorkHoursCalculator";
+import { CalculatorSkeleton } from "@/components/Skeleton";
 import { getProfile, requireUser } from "@/lib/auth/session";
 
 export default function QuantoCustaPage() {
@@ -13,7 +14,7 @@ export default function QuantoCustaPage() {
           <h1 className="font-display text-h1 font-bold">Quanto custa</h1>
           <p className="text-tinta-2">Veja quantas horas de trabalho você precisa para comprar algo.</p>
         </div>
-        <Suspense fallback={<p className="text-tinta-2">Carregando...</p>}>
+        <Suspense fallback={<CalculatorSkeleton />}>
           <Calculator />
         </Suspense>
       </main>

@@ -40,8 +40,8 @@ export function ProfileForm({ monthlyIncome, payday }: { monthlyIncome: string; 
       </div>
       {state?.error && <p role="alert" className="form-error">{state.error}</p>}
       <div className="flex justify-end">
-        <button disabled={pending} className="btn btn-primary">
-          {pending ? "Salvando..." : "Salvar"}
+        <button disabled={pending} aria-busy={pending} className="btn btn-primary">
+          Salvar
         </button>
       </div>
     </form>

@@ -102,8 +102,8 @@ function ExpenseFormBody({ type, today, onDone }: { type: FlowType; today: strin
         <button type="button" onClick={onDone} className="btn btn-secondary">
           Cancelar
         </button>
-        <button disabled={pending} className="btn btn-primary">
-          {pending ? "Salvando..." : "Salvar"}
+        <button disabled={pending} aria-busy={pending} className="btn btn-primary">
+          Salvar
         </button>
       </div>
     </form>

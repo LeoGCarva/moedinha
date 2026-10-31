@@ -9,6 +9,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { CycleSummary } from "@/components/CycleSummary";
 import { ExpenseCalendar } from "@/components/ExpenseCalendar";
 import { RecentMovements } from "@/components/RecentMovements";
+import { DashboardSkeleton } from "@/components/Skeleton";
 import { getProfile, requireUser } from "@/lib/auth/session";
 import { formatBRL, formatSigned, monthLabel, monthRange, cycleOf, previousCycles, todayISO, type Kind } from "@/lib/money";
 
@@ -17,7 +18,7 @@ export default function Home({ searchParams }: PageProps<"/">) {
     <>
       <AppHeader current="/" />
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 pt-10 pb-16 sm:px-8">
-        <Suspense fallback={<p className="text-tinta-2">Carregando...</p>}>
+        <Suspense fallback={<DashboardSkeleton />}>
           <Dashboard searchParams={searchParams} />
         </Suspense>
       </main>

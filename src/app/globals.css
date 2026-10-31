@@ -91,13 +91,15 @@ body {
     cursor: pointer;
     transition: background-color 120ms, border-color 120ms, color 120ms;
   }
-  .btn:disabled {
+  /* Em espera (aria-busy) o botão mantém a cor, fica opaco e mostra o spinner. */
+  .btn:disabled:not([aria-busy="true"]) {
     cursor: not-allowed;
     background: var(--color-linha);
     border-color: var(--color-linha);
     color: var(--color-tinta-3);
   }
   .btn-primary {
+    --spinner: #fff;
     background: var(--color-cofre);
     color: #fff;
   }
@@ -105,6 +107,7 @@ body {
     background: var(--color-cofre-escuro);
   }
   .btn-secondary {
+    --spinner: var(--color-tinta);
     background: var(--color-superficie);
     color: var(--color-tinta);
     border: 1.5px solid var(--color-linha-forte);
@@ -113,6 +116,7 @@ body {
     border-color: var(--color-cofre);
   }
   .btn-ghost {
+    --spinner: var(--color-cofre);
     padding: 0 1rem;
     background: transparent;
     color: var(--color-cofre);
@@ -121,12 +125,33 @@ body {
     background: var(--color-broto);
   }
   .btn-danger {
+    --spinner: var(--color-saida);
     background: var(--color-superficie);
     color: var(--color-saida);
     border: 1.5px solid #e7b7bb;
   }
   .btn-danger:hover:not(:disabled) {
     background: var(--color-saida-claro);
+  }
+
+  /* Ação em andamento: texto/ícone somem (a largura fica) e um spinner na cor do botão gira no meio. */
+  [aria-busy="true"] {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+    color: transparent !important;
+  }
+  [aria-busy="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--spinner, currentColor);
+    border-right-color: transparent;
+    border-radius: 9999px;
+    animation: spin 0.7s linear infinite;
   }
 
   /* Campos · altura 48, raio 12, rótulo sempre visível */
@@ -236,5 +261,11 @@ body {
     flex: 1;
     height: 1px;
     background: var(--color-linha);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
