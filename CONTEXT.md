@@ -61,7 +61,7 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 - Domínios: localhost pré-aprovado. Produção: `neon neon-auth domain add https://<domínio>`.
 - Emails de auth usam SMTP compartilhado do Neon; produção precisa de SMTP próprio.
 
-## Schema (`src/db/schema.ts`; migration `drizzle/0000_*.sql` aplicada; `drizzle/0001_*.sql` (coluna `kind`) e `drizzle/0002_investimento.sql` (converte `entrada` antigas → `investimento`) **pendentes de `pnpm db:migrate`**)
+## Schema (`src/db/schema.ts`; migrations `drizzle/0000_*.sql`, `drizzle/0001_*.sql` (coluna `kind`) e `drizzle/0002_investimento.sql` (converte `entrada` antigas → `investimento`) aplicadas)
 - `profile`: `user_id` text PK, `monthly_income` int (centavos), `payday` int (1–31), `created_at`, `updated_at`.
 - `expense`: `id` uuid PK, `user_id` text, `description` text, `amount` int (centavos, sempre positivo; o sinal vem do `kind`), `kind` text `saida`|`investimento`|`entrada` (default `saida`), `spent_at` date, `created_at`. Índice `(user_id, spent_at)`.
 - `neon_auth.*`: gerenciado pelo Neon Auth.
@@ -131,3 +131,4 @@ Saldo (renda − gastos), categorias, edição de gastos, deploy na Vercel.
 - 2026-10-31 — Investimento passa de rosa para amarelo (tokens `investimento`, `investimento-claro`, `investimento-vivo`) na etiqueta, nos valores, no ponto do calendário, na barra do resumo e no extrato.
 - 2026-10-31 — Barra do resumo: segmento Gasto passa de `cofre-noite` para o vermelho `saida`; token `cofre-noite` removido.
 - 2026-10-31 — Célula do calendário: removido o ponto ao lado do total de Investimento (a cor amarela já o diferencia do gasto).
+- 2026-10-31 — Migrations 0001 e 0002 aplicadas no banco (`pnpm db:migrate`).
