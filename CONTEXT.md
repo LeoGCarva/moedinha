@@ -2,7 +2,7 @@
 
 > Fonte única de contexto do projeto. **Atualizar este arquivo a cada mudança** (stack, decisões, schema, rotas, status, próximos passos).
 
-_Última atualização: 2026-10-31 — Gasto vermelho na barra do resumo._
+_Última atualização: 2026-10-31 — Sem ponto no Investimento do calendário._
 
 ## Objetivo
 Site onde o usuário autenticado registra quanto gastou e vê o **total de gastos do mês**.
@@ -36,13 +36,13 @@ Site onde o usuário autenticado registra quanto gastou e vê o **total de gasto
 - Driver `pg` (recomendação da skill Neon para Next.js na Vercel). Ao fazer deploy na Vercel: adicionar `attachDatabasePool` de `@vercel/functions` em `src/db/index.ts`.
 - Cache Components: leituras de sessão chamam `await connection()` e ficam dentro de `<Suspense>`; após mutações usar `refresh()` de `next/cache`.
 - `<body>` em `src/app/layout.tsx` tem `suppressHydrationWarning` porque extensões de navegador (ex.: Grammarly) injetam atributos nele. Vale só para os atributos do próprio `<body>`, não para os filhos.
-- **Movimentações**: a tabela `expense` guarda três tipos em `kind`: `saida` (**Gasto**, etiqueta vermelha, `− R$` em `text-saida`), `investimento` (**Investimento**, escolhido no select de "Adicionar saída": dinheiro que sai da conta para ser guardado; etiqueta amarela `investimento-claro`/`investimento`, `− R$` em `text-investimento`; no calendário com um ponto `investimento-vivo`) e `entrada` (**Entrada**, botão "Adicionar entrada": dinheiro que entra na conta; etiqueta `entrada-claro`/`entrada`, `+ R$` em `text-entrada`). O nome `expense` foi mantido para não mexer em tudo. "Total do dia" no modal = entradas − gastos − investimentos. Helpers: `formatSigned`, `kindSign` (`money.ts`), `KindBadge` e `kindColor` (`KindBadge.tsx`, uma tabela por tipo).
+- **Movimentações**: a tabela `expense` guarda três tipos em `kind`: `saida` (**Gasto**, etiqueta vermelha, `− R$` em `text-saida`), `investimento` (**Investimento**, escolhido no select de "Adicionar saída": dinheiro que sai da conta para ser guardado; etiqueta amarela `investimento-claro`/`investimento`, `− R$` em `text-investimento`) e `entrada` (**Entrada**, botão "Adicionar entrada": dinheiro que entra na conta; etiqueta `entrada-claro`/`entrada`, `+ R$` em `text-entrada`). O nome `expense` foi mantido para não mexer em tudo. "Total do dia" no modal = entradas − gastos − investimentos. Helpers: `formatSigned`, `kindSign` (`money.ts`), `KindBadge` e `kindColor` (`KindBadge.tsx`, uma tabela por tipo).
 - **Formulários de nova movimentação**: dois botões, "Adicionar saída" (secundário) e "Adicionar entrada" (primário), abrem o formulário num modal (`<dialog>` com `showModal()` em `AddExpenseForm`, prop `type` = `saida`|`entrada`). Na saída, o primeiro campo é o select "Tipo" (Gasto, padrão, ou Investimento), que envia o `kind`; na entrada o `kind` vai num campo oculto. O formulário remonta a cada fechamento (`key`), então reabre limpo; salvar com sucesso fecha o modal.
 - **Resumo**: card verde `CycleSummary` com "Investido no ciclo" (`− R$`), o período em etiqueta e uma barra que divide o disponível (renda + entradas do ciclo) em Investido (`investimento-vivo`, amarelo), Gasto (`saida`, o mesmo vermelho do Gasto no resto da UI) e Livre (`white/25`), com legenda e valores. Livre = max(renda + entradas − investido − gasto, 0); se investido + gasto passar do disponível, a barra se ajusta à soma. No fim do card, o texto "Extratos de ciclos anteriores" (`CycleHistory`) abre um modal com cada ciclo anterior (do mais recente até o da movimentação mais antiga, `previousCycles()`): período, entradas (verde), investido (amarelo) e gasto (vermelho). Coluna da direita: Renda mensal (+ "R$ X em entradas no ciclo" quando houver), Gasto no ciclo (com % de renda + entradas) e Recebimento.
 - Tabela `expense` sem coluna `category` por enquanto (não foi pedido).
 
 ## Design (v1)
-- Tokens em `src/app/globals.css` (`@theme` do Tailwind 4): cores `cofre` #0F5C46 (primário), `cofre-escuro` #0A4535, `broto` #E3F0EA, `rosa` #F7B8C9, `tinta` #14201B, `tinta-2` #4A5852, `tinta-3` #66736D, `fundo` #F6F7F4, `linha` #DDE3DF, `entrada` #1F7A4D, `saida` #B4232F, `atencao` #A15C00, `investimento` #8A6100 / `investimento-claro` #FDF3C4 / `investimento-vivo` #F5CF3B (amarelos do Investimento) (+ variantes `-claro`).
+- Tokens em `src/app/globals.css` (`@theme` do Tailwind 4): cores `cofre` #0F5C46 (primário), `cofre-escuro` #0A4535, `broto` #E3F0EA, `rosa` #F7B8C9, `tinta` #14201B, `tinta-2` #4A5852, `tinta-3` #66736D, `fundo` #F6F7F4, `linha` #DDE3DF, `entrada` #1F7A4D, `saida` #B4232F, `atencao` #A15C00, `investimento` #8A6100 / `investimento-claro` #FDF3C4 / `investimento-vivo` #F5CF3B (amarelos do Investimento; `-vivo` só na barra do resumo) (+ variantes `-claro`).
 - Fontes (`next/font/google` em `layout.tsx`): **Bricolage Grotesque** (`font-display`: títulos e valores) e **Figtree** (`font-sans`: texto/UI). Números com `tabular-nums`.
 - Escala: `text-display` 48/52, `text-h1` 32/40, `text-h2` 24/32, `text-h3` 18/26, corpo 16/24, `small` 14/20, `.overline` 12/16 caixa alta.
 - Raios: `rounded-etiqueta` 8, `rounded-campo` 12, `rounded-cartao` 16. Sombras `shadow-nivel-1`/`-2`.
@@ -130,3 +130,4 @@ Saldo (renda − gastos), categorias, edição de gastos, deploy na Vercel.
 - 2026-10-31 — "Adicionar gasto" e "Guardar dinheiro" viram um único botão **"Adicionar saída"**; o modal tem um select "Tipo" (Gasto/Investimento). `AddExpenseForm` recebe `type` (`saida`|`entrada`) em vez de `kind`.
 - 2026-10-31 — Investimento passa de rosa para amarelo (tokens `investimento`, `investimento-claro`, `investimento-vivo`) na etiqueta, nos valores, no ponto do calendário, na barra do resumo e no extrato.
 - 2026-10-31 — Barra do resumo: segmento Gasto passa de `cofre-noite` para o vermelho `saida`; token `cofre-noite` removido.
+- 2026-10-31 — Célula do calendário: removido o ponto ao lado do total de Investimento (a cor amarela já o diferencia do gasto).
