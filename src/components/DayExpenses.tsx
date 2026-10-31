@@ -67,8 +67,8 @@ export function DayExpenses({
               data-testid={`day-${t.kind}`}
               className={`flex items-center gap-1 text-[14px] ${kindColor(t.kind)}`}
             >
-              {/* Investimento e gasto têm o mesmo sinal; o ponto rosa os diferencia. */}
-              {t.kind === "investimento" && <span aria-hidden="true" className="inline-block size-2 rounded-full bg-rosa" />}
+              {/* Investimento e gasto têm o mesmo sinal; o ponto amarelo os diferencia. */}
+              {t.kind === "investimento" && <span aria-hidden="true" className="inline-block size-2 rounded-full bg-investimento-vivo" />}
               {formatSigned(t.cents, t.kind)}
             </strong>
           ))}

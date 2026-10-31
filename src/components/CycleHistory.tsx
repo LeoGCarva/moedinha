@@ -52,7 +52,7 @@ export function CycleHistory({ history, year }: { history: CycleStatement[]; yea
                       {dayLabel(c.start, year)} a {dayLabel(c.last, year)}
                     </td>
                     <td className="py-2.5 text-right font-bold text-entrada">{formatSigned(c.received, "entrada")}</td>
-                    <td className="py-2.5 pl-3 text-right font-bold text-rosa-texto">{formatSigned(c.invested, "investimento")}</td>
+                    <td className="py-2.5 pl-3 text-right font-bold text-investimento">{formatSigned(c.invested, "investimento")}</td>
                     <td className="py-2.5 pl-3 text-right font-bold text-saida">{formatSigned(c.spent, "saida")}</td>
                   </tr>
                 ))}

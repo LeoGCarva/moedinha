@@ -24,7 +24,7 @@ export function CycleSummary({
   // Se investido + gasto passar do disponível, a barra se ajusta à soma.
   const base = Math.max(available, invested + spent, 1);
   const parts = [
-    { key: "investido", label: "Investido", cents: invested, color: "bg-rosa", dot: "" },
+    { key: "investido", label: "Investido", cents: invested, color: "bg-investimento-vivo", dot: "" },
     // Contorno no ponto da legenda: o verde quase preto some sobre o card.
     { key: "gasto", label: "Gasto", cents: spent, color: "bg-cofre-noite", dot: "ring-1 ring-white/70" },
     { key: "livre", label: "Livre", cents: free, color: "bg-white/25", dot: "" },
