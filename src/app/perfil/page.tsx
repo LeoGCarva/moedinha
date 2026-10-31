@@ -3,6 +3,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { PersonalDataForm } from "@/components/PersonalDataForm";
 import { ProfileForm } from "@/components/ProfileForm";
 import { SignOutButton } from "@/components/SignOutButton";
+import { ProfileSkeleton } from "@/components/Skeleton";
 import { getProfile, requireUser } from "@/lib/auth/session";
 
 export default function PerfilPage() {
@@ -11,7 +12,7 @@ export default function PerfilPage() {
       <AppHeader current="/perfil" />
       <main className="mx-auto flex w-full max-w-[760px] flex-col gap-6 px-4 pt-10 pb-16 sm:px-8">
         <h1 className="font-display text-h1 font-bold">Seu perfil</h1>
-        <Suspense fallback={<p className="text-tinta-2">Carregando...</p>}>
+        <Suspense fallback={<ProfileSkeleton />}>
           <Profile />
         </Suspense>
       </main>

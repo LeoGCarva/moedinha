@@ -55,8 +55,8 @@ export default function LoginPage() {
               <input id="password" name="password" type="password" placeholder="Sua senha" autoComplete="current-password" required className="input" />
             </div>
             {state?.error && <p role="alert" className="form-error">{state.error}</p>}
-            <button disabled={pending} className="btn btn-primary mt-2">
-              {pending ? "Entrando..." : "Entrar"}
+            <button disabled={pending} aria-busy={pending} className="btn btn-primary mt-2">
+              Entrar
             </button>
           </form>
 
