@@ -30,9 +30,11 @@
   --color-entrada-claro: #e4f3ea;
   --color-saida: #b4232f;
   --color-saida-claro: #fbe7e8;
-  --color-cofre-noite: #08342a;    /* verde quase preto: segmento "Gasto" da barra sobre o verde */
   --color-atencao: #a15c00;
   --color-atencao-claro: #fdf1dc;
+  --color-investimento: #8a6100;        /* texto/valor de Investimento (amarelo escuro, legível no branco) */
+  --color-investimento-claro: #fdf3c4;  /* fundo da etiqueta Investimento */
+  --color-investimento-vivo: #f5cf3b;   /* segmento Investido da barra do resumo */
 
   /* Escala tipográfica (tamanho / linha) */
   --text-display: 3rem;

@@ -31,7 +31,7 @@ export const expenseSchema = z.object({
   description: z.string().trim().min(1, "Informe a descrição"),
   amount: money.refine((c) => c > 0, "Valor deve ser maior que zero"),
   spentAt: z.iso.date("Data inválida"),
-  kind: z.enum(["saida", "entrada"], "Tipo inválido"),
+  kind: z.enum(["saida", "investimento", "entrada"], "Tipo inválido"),
 });
 
 export type FormState = { error: string } | null;

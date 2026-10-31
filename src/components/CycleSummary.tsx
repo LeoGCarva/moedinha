@@ -1,29 +1,31 @@
 import { CycleHistory, type CycleStatement } from "@/components/CycleHistory";
-import { formatBRL, formatDayMonth } from "@/lib/money";
+import { formatBRL, formatDayMonth, formatSigned } from "@/lib/money";
 
-/** Card verde do resumo: quanto foi guardado no ciclo e a divisão da renda em guardado, gasto e livre. */
+/** Card verde do resumo: quanto foi investido no ciclo e a divisão do disponível (renda + entradas) em investido, gasto e livre. */
 export function CycleSummary({
-  saved,
+  invested,
   spent,
+  received,
   income,
   start,
   last,
   history,
 }: {
-  saved: number;
+  invested: number;
   spent: number;
+  received: number;
   income: number;
   start: string;
   last: string;
   history: CycleStatement[];
 }) {
-  const free = Math.max(income - saved - spent, 0);
-  // Se guardado + gasto passar da renda, a barra se ajusta à soma.
-  const base = Math.max(income, saved + spent, 1);
+  const available = income + received;
+  const free = Math.max(available - invested - spent, 0);
+  // Se investido + gasto passar do disponível, a barra se ajusta à soma.
+  const base = Math.max(available, invested + spent, 1);
   const parts = [
-    { key: "guardado", label: "Guardado", cents: saved, color: "bg-rosa", dot: "" },
-    // Contorno no ponto da legenda: o verde quase preto some sobre o card.
-    { key: "gasto", label: "Gasto", cents: spent, color: "bg-cofre-noite", dot: "ring-1 ring-white/70" },
+    { key: "investido", label: "Investido", cents: invested, color: "bg-investimento-vivo", dot: "" },
+    { key: "gasto", label: "Gasto", cents: spent, color: "bg-saida", dot: "" },
     { key: "livre", label: "Livre", cents: free, color: "bg-white/25", dot: "" },
   ];
 
@@ -34,7 +36,7 @@ export function CycleSummary({
       </svg>
 
       <div className="relative flex flex-wrap items-center justify-between gap-3">
-        <p className="overline text-sobre-cofre">Guardado no ciclo</p>
+        <p className="overline text-sobre-cofre">Investido no ciclo</p>
         <span data-testid="cycle-range" className="rounded-full bg-white/15 px-3 py-1 text-sm font-bold">
           {formatDayMonth(start)} a {formatDayMonth(last)}
         </span>
@@ -44,7 +46,7 @@ export function CycleSummary({
         data-testid="cycle-saved"
         className="relative font-display text-[clamp(2.5rem,5vw,3.5rem)] font-bold leading-none tracking-[-0.02em]"
       >
-        {formatBRL(saved)}
+        {formatSigned(invested, "investimento")}
       </strong>
 
       <div className="relative flex flex-col gap-3">
@@ -65,7 +67,7 @@ export function CycleSummary({
             <li key={p.key} data-testid={`legend-${p.key}`} className="flex items-center gap-2">
               <span aria-hidden="true" className={`inline-block size-3 rounded-[3px] ${p.color} ${p.dot}`} />
               <span className="text-sobre-cofre">{p.label}</span>
-              <strong>{formatBRL(p.cents)}</strong>
+              <strong>{p.key === "livre" ? formatBRL(p.cents) : formatSigned(p.cents, p.key === "investido" ? "investimento" : "saida")}</strong>
             </li>
           ))}
         </ul>

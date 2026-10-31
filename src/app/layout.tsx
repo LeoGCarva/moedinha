@@ -15,7 +15,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "Porquinho",
+  title: "Moedinha",
   description: "Controle de gastos mensais",
 };
 

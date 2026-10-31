@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef } from "react";
-import { formatBRL, formatDayMonth, formatSigned } from "@/lib/money";
+import { formatDayMonth, formatSigned } from "@/lib/money";
 
-export type CycleStatement = { start: string; last: string; saved: number; spent: number };
+export type CycleStatement = { start: string; last: string; received: number; invested: number; spent: number };
 
 /** "05/10", ou "05/10/2025" fora do ano atual. */
 const dayLabel = (iso: string, year: string) => (iso.startsWith(year) ? formatDayMonth(iso) : iso.split("-").reverse().join("/"));
 
-/** Texto no card do resumo que abre um modal com o guardado e o gasto de cada ciclo anterior. */
+/** Texto no card do resumo que abre um modal com as entradas, o investido e o gasto de cada ciclo anterior. */
 export function CycleHistory({ history, year }: { history: CycleStatement[]; year: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
 
@@ -27,7 +27,7 @@ export function CycleHistory({ history, year }: { history: CycleStatement[]; yea
         aria-labelledby="cycle-history-title"
         // Clique no fundo (fora do conteúdo) fecha.
         onClick={(e) => e.target === dialog.current && dialog.current.close()}
-        className="m-auto w-[calc(100%-2rem)] max-w-md rounded-cartao bg-superficie text-tinta shadow-nivel-1 backdrop:bg-tinta/40"
+        className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-cartao bg-superficie text-tinta shadow-nivel-1 backdrop:bg-tinta/40"
       >
         <div data-testid="cycle-history" className="flex flex-col gap-5 p-6">
           <h2 id="cycle-history-title" className="font-display text-h2 font-semibold">
@@ -40,7 +40,8 @@ export function CycleHistory({ history, year }: { history: CycleStatement[]; yea
               <thead>
                 <tr className="text-sm text-tinta-2">
                   <th className="pb-2 font-semibold">Ciclo</th>
-                  <th className="pb-2 text-right font-semibold">Guardado</th>
+                  <th className="pb-2 text-right font-semibold">Entradas</th>
+                  <th className="pb-2 pl-3 text-right font-semibold">Investido</th>
                   <th className="pb-2 text-right font-semibold">Gasto</th>
                 </tr>
               </thead>
@@ -50,7 +51,8 @@ export function CycleHistory({ history, year }: { history: CycleStatement[]; yea
                     <td className="py-2.5 pr-3">
                       {dayLabel(c.start, year)} a {dayLabel(c.last, year)}
                     </td>
-                    <td className="py-2.5 text-right font-bold text-entrada">{formatBRL(c.saved)}</td>
+                    <td className="py-2.5 text-right font-bold text-entrada">{formatSigned(c.received, "entrada")}</td>
+                    <td className="py-2.5 pl-3 text-right font-bold text-investimento">{formatSigned(c.invested, "investimento")}</td>
                     <td className="py-2.5 pl-3 text-right font-bold text-saida">{formatSigned(c.spent, "saida")}</td>
                   </tr>
                 ))}

@@ -31,10 +31,10 @@ export function RecentMovements({ items }: { items: Movement[] }) {
                 <tr key={m.id} data-testid="movement">
                   <td className={`${td} font-semibold`}>{m.description}</td>
                   <td className={td}>
-                    <KindBadge kind={m.kind} tone="verde" />
+                    <KindBadge kind={m.kind} />
                   </td>
                   <td className={`${td} text-tinta-2`}>{formatDayMonth(m.spentAt)}</td>
-                  <td className={`${td} text-right font-bold ${m.kind === "entrada" ? "text-entrada" : kindColor(m.kind)}`}>
+                  <td className={`${td} text-right font-bold ${kindColor(m.kind)}`}>
                     {formatSigned(m.amount, m.kind)}
                   </td>
                 </tr>

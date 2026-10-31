@@ -11,7 +11,7 @@ export default function CadastroPage() {
 
   return (
     <main className="flex flex-1 flex-col items-center gap-8 px-4 pt-10 pb-16">
-      <Link href="/login" aria-label="Porquinho, entrar">
+      <Link href="/login" aria-label="Moedinha, entrar">
         <Logo />
       </Link>
 

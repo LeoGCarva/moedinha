@@ -12,7 +12,7 @@ export function AppHeader({ current }: { current: "/" | "/perfil" }) {
   return (
     <header className="border-b border-linha bg-superficie">
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-8">
-        <Link href="/" aria-label="Porquinho, início">
+        <Link href="/" aria-label="Moedinha, início">
           <Logo />
         </Link>
         <nav aria-label="Principal" className="flex flex-wrap items-center gap-1">
@@ -31,7 +31,7 @@ export function AppHeader({ current }: { current: "/" | "/perfil" }) {
               </Link>
             );
           })}
-          <SignOutButton />
+          <SignOutButton className="btn btn-danger"/>
         </nav>
       </div>
     </header>

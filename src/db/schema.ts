@@ -18,8 +18,8 @@ export const expense = pgTable(
     userId: text("user_id").notNull(),
     description: text("description").notNull(),
     amount: integer("amount").notNull(), // centavos
-    // Saída (gasto) ou entrada (dinheiro guardado).
-    kind: text("kind", { enum: ["saida", "entrada"] }).notNull().default("saida"),
+    // Saída (gasto), investimento (dinheiro guardado, sai da conta) ou entrada (dinheiro que entra na conta).
+    kind: text("kind", { enum: ["saida", "investimento", "entrada"] }).notNull().default("saida"),
     spentAt: date("spent_at").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

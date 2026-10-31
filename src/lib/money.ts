@@ -4,11 +4,14 @@ export function formatBRL(cents: number) {
   return brl.format(cents / 100);
 }
 
-export type Kind = "saida" | "entrada";
+export type Kind = "saida" | "investimento" | "entrada";
 
-/** Gasto (saída) → "− R$ 10,00"; guardado (entrada) → "R$ 10,00". */
+/** Entrada soma à conta (+1); gasto e investimento tiram dela (−1). */
+export const kindSign = (kind: Kind) => (kind === "entrada" ? 1 : -1);
+
+/** Gasto ou investimento → "− R$ 10,00"; entrada → "+ R$ 10,00". */
 export function formatSigned(cents: number, kind: Kind) {
-  return kind === "saida" ? `− ${formatBRL(cents)}` : formatBRL(cents);
+  return `${kindSign(kind) > 0 ? "+" : "−"} ${formatBRL(cents)}`;
 }
 
 /** "1.234,56", "1234.56" ou "12" → centavos. Retorna null se inválido. */

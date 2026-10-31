@@ -15,6 +15,13 @@
       "when": 1793394372556,
       "tag": "0001_opposite_texas_twister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793413692695,
+      "tag": "0002_investimento",
+      "breakpoints": true
     }
   ]
 }
