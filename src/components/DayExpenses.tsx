@@ -3,11 +3,13 @@
 import { useRef } from "react";
 import { deleteExpense } from "@/app/actions";
 import { KindBadge, kindColor } from "@/components/KindBadge";
-import { formatBRL, formatSigned, type Kind } from "@/lib/money";
+import { formatBRL, formatSigned, kindSign, type Kind } from "@/lib/money";
 
 /** Valor com sinal no modal: positivo "+ R$", negativo "− R$", zero sem sinal. */
 const signed = (cents: number) =>
   cents > 0 ? `+ ${formatBRL(cents)}` : cents < 0 ? `− ${formatBRL(-cents)}` : formatBRL(0);
+
+const DAY_LABEL = { saida: "gastos", investimento: "investido", entrada: "entradas" } as const;
 
 const dayFmt = new Intl.DateTimeFormat("pt-BR", {
   weekday: "long",
@@ -16,7 +18,7 @@ const dayFmt = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "UTC",
 });
 
-/** Célula de um dia com movimentações: mostra os totais de gasto e guardado e abre um modal com os detalhes. */
+/** Célula de um dia com movimentações: mostra os totais de gasto, investimento e entrada e abre um modal com os detalhes. */
 export function DayExpenses({
   iso,
   day,
@@ -30,16 +32,16 @@ export function DayExpenses({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const totalOf = (kind: Kind) => expenses.filter((e) => e.kind === kind).reduce((acc, e) => acc + e.amount, 0);
-  const totals = (["saida", "entrada"] as const)
+  const totals = (["saida", "investimento", "entrada"] as const)
     .map((kind) => ({ kind, cents: totalOf(kind) }))
     .filter((t) => t.cents > 0);
-  // Saldo do dia: guardado (positivo) menos gasto (negativo).
-  const net = totalOf("entrada") - totalOf("saida");
+  // Saldo do dia: entradas menos gastos e investimentos.
+  const net = expenses.reduce((acc, e) => acc + kindSign(e.kind) * e.amount, 0);
   // Em UTC para não haver desvio de fuso.
   const label = dayFmt.format(new Date(`${iso}T00:00:00Z`));
   const titleId = `dia-${iso}`;
   const summary = totals
-    .map((t) => `${t.kind === "saida" ? "gastos" : "guardado"} ${formatBRL(t.cents)}`)
+    .map((t) => `${DAY_LABEL[t.kind]} ${formatBRL(t.cents)}`)
     .join(", ");
 
   return (
@@ -65,8 +67,8 @@ export function DayExpenses({
               data-testid={`day-${t.kind}`}
               className={`flex items-center gap-1 text-[14px] ${kindColor(t.kind)}`}
             >
-              {/* Guardado não tem sinal; o ponto rosa o diferencia do gasto. */}
-              {t.kind === "entrada" && <span aria-hidden="true" className="inline-block size-2 rounded-full bg-rosa" />}
+              {/* Investimento e gasto têm o mesmo sinal; o ponto rosa os diferencia. */}
+              {t.kind === "investimento" && <span aria-hidden="true" className="inline-block size-2 rounded-full bg-rosa" />}
               {formatSigned(t.cents, t.kind)}
             </strong>
           ))}
@@ -88,9 +90,9 @@ export function DayExpenses({
             {expenses.map((e) => (
               <li key={e.id} className="flex items-center gap-3 py-2.5">
                 <span className="min-w-0 flex-1 truncate" title={e.description}>{e.description}</span>
-                <KindBadge kind={e.kind} tone="verde" />
-                <span className={`font-bold ${e.kind === "entrada" ? "text-entrada" : kindColor(e.kind)}`}>
-                  {signed(e.kind === "entrada" ? e.amount : -e.amount)}
+                <KindBadge kind={e.kind} />
+                <span className={`font-bold ${kindColor(e.kind)}`}>
+                  {formatSigned(e.amount, e.kind)}
                 </span>
                 <form action={deleteExpense.bind(null, e.id)}>
                   <button

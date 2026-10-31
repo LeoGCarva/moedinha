@@ -10,7 +10,7 @@ import { CycleSummary } from "@/components/CycleSummary";
 import { ExpenseCalendar } from "@/components/ExpenseCalendar";
 import { RecentMovements } from "@/components/RecentMovements";
 import { getProfile, requireUser } from "@/lib/auth/session";
-import { formatBRL, formatSigned, monthLabel, monthRange, cycleOf, previousCycles, todayISO } from "@/lib/money";
+import { formatBRL, formatSigned, monthLabel, monthRange, cycleOf, previousCycles, todayISO, type Kind } from "@/lib/money";
 
 export default function Home({ searchParams }: PageProps<"/">) {
   return (
@@ -41,12 +41,15 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/">, "searchParams">)
   const inMonth = and(eq(expense.userId, user.id), gte(expense.spentAt, start), lt(expense.spentAt, end));
   const inCycle = and(eq(expense.userId, user.id), gte(expense.spentAt, cycle.start), lt(expense.spentAt, cycle.end));
 
-  const sumOf = (kind: "saida" | "entrada") =>
+  const sumOf = (kind: Kind) =>
     sql<number>`coalesce(sum(${expense.amount}) filter (where ${expense.kind} = ${kind}), 0)`.mapWith(Number);
 
-  const [expenses, [{ total, saved }], recent, pastDays] = await Promise.all([
+  const [expenses, [{ spent, invested, received }], recent, pastDays] = await Promise.all([
     db.select().from(expense).where(inMonth).orderBy(asc(expense.createdAt)),
-    db.select({ total: sumOf("saida"), saved: sumOf("entrada") }).from(expense).where(inCycle),
+    db
+      .select({ spent: sumOf("saida"), invested: sumOf("investimento"), received: sumOf("entrada") })
+      .from(expense)
+      .where(inCycle),
     db
       .select()
       .from(expense)
@@ -64,9 +67,15 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/">, "searchParams">)
 
   const history = pastDays.length
     ? previousCycles(cycle, userProfile.payday, pastDays[0].day).map((c) => {
-        const sumKind = (kind: "saida" | "entrada") =>
+        const sumKind = (kind: Kind) =>
           pastDays.filter((d) => d.kind === kind && d.day >= c.start && d.day < c.end).reduce((acc, d) => acc + d.cents, 0);
-        return { start: c.start, last: c.last, saved: sumKind("entrada"), spent: sumKind("saida") };
+        return {
+          start: c.start,
+          last: c.last,
+          received: sumKind("entrada"),
+          invested: sumKind("investimento"),
+          spent: sumKind("saida"),
+        };
       })
     : [];
 
@@ -75,13 +84,15 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/">, "searchParams">)
       <div className="flex flex-wrap items-end gap-4">
         <h1 className="mr-auto font-display text-h1 font-bold">Olá, {user.name}</h1>
         <AddExpenseForm today={today} kind="saida" />
+        <AddExpenseForm today={today} kind="investimento" />
         <AddExpenseForm today={today} kind="entrada" />
       </div>
 
       <section aria-label="Resumo" className="flex flex-wrap gap-6">
         <CycleSummary
-          saved={saved}
-          spent={total}
+          invested={invested}
+          spent={spent}
+          received={received}
           income={userProfile.monthlyIncome}
           start={cycle.start}
           last={cycle.last}
@@ -92,15 +103,20 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/">, "searchParams">)
           <div className="card flex flex-col gap-1.5 p-6">
             <span className="text-sm font-semibold text-tinta-2">Renda mensal</span>
             <span className="font-display text-[28px] leading-9 font-bold">{formatBRL(userProfile.monthlyIncome)}</span>
+            {received > 0 && (
+              <span data-testid="cycle-received" className="text-sm font-semibold text-entrada">
+                {formatSigned(received, "entrada")} em entradas no ciclo
+              </span>
+            )}
           </div>
           <div className="card flex flex-col gap-1.5 p-6">
             <span className="text-sm font-semibold text-tinta-2">Gasto no ciclo</span>
             <span data-testid="month-total" className="font-display text-[28px] leading-9 font-bold text-saida">
-              {formatSigned(total, "saida")}
+              {formatSigned(spent, "saida")}
             </span>
-            {userProfile.monthlyIncome > 0 && (
+            {userProfile.monthlyIncome + received > 0 && (
               <span className="text-sm text-tinta-2">
-                {Math.round((total / userProfile.monthlyIncome) * 100)}% da renda
+                {Math.round((spent / (userProfile.monthlyIncome + received)) * 100)}% da renda
               </span>
             )}
           </div>

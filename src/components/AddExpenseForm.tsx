@@ -6,10 +6,11 @@ import type { Kind } from "@/lib/money";
 
 const COPY = {
   saida: { button: "Adicionar gasto", title: "Novo gasto", placeholder: "Ex.: Mercado", buttonClass: "btn-secondary", icon: "M5 12h14" },
-  entrada: { button: "Guardar dinheiro", title: "Guardar dinheiro", placeholder: "Ex.: Reserva", buttonClass: "btn-primary", icon: "M12 5v14M5 12h14" },
+  investimento: { button: "Guardar dinheiro", title: "Novo investimento", placeholder: "Ex.: Reserva", buttonClass: "btn-secondary", icon: "M5 12h14" },
+  entrada: { button: "Adicionar entrada", title: "Nova entrada", placeholder: "Ex.: Freela", buttonClass: "btn-primary", icon: "M12 5v14M5 12h14" },
 } as const;
 
-/** Botão que abre, num modal, o formulário de nova movimentação: gasto (saída) ou dinheiro guardado (entrada). */
+/** Botão que abre, num modal, o formulário de nova movimentação: gasto, investimento ou entrada. */
 export function AddExpenseForm({ today, kind = "saida" }: { today: string; kind?: Kind }) {
   const copy = COPY[kind];
   const dialog = useRef<HTMLDialogElement>(null);
@@ -51,7 +52,7 @@ function ExpenseFormBody({ kind, today, onDone }: { kind: Kind; today: string; o
     null,
   );
 
-  // Ids com o tipo como prefixo: os dois formulários existem na página ao mesmo tempo.
+  // Ids com o tipo como prefixo: os três formulários existem na página ao mesmo tempo.
   const id = (field: string) => `${kind}-${field}`;
 
   // O showModal() foca o primeiro campo (descrição) ao abrir.
