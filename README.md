@@ -11,8 +11,6 @@ A personal finance web app for tracking income, spending, and investments across
 - **"Quanto custa" ("How much does it cost"):** convert a price into the hours of work it would take to pay for it.
 - **Accounts:** sign in with email and password or Google, and edit your name, income, and payday in your profile.
 
-GitHub sign-in has a button in the interface but isn't enabled yet, because it needs its own OAuth app.
-
 ## Tech stack
 
 - Next.js 16 (App Router, Cache Components), React 19, TypeScript
